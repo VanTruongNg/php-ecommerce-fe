@@ -10,6 +10,8 @@ export const API_ENDPOINTS = {
     GOOGLE_LOGIN: "/auth/google",
     GOOGLE_CALLBACK: "/auth/google/callback",
     REDIRECT_URI: typeof window !== 'undefined' ? `${window.location.origin}/auth/google/callback` : '',
+    VERIFY_EMAIL: (token: string) => `/auth/verify-email/${token}`,
+    RESEND_VERIFICATION: "/auth/resend-verification",
   },
 
   // User endpoints
@@ -33,10 +35,10 @@ export const API_ENDPOINTS = {
   // Category endpoints
   CATEGORIES: {
     BASE: "/categories",
-    DETAIL: (id: number) => `/categories/${id}`,
+    DETAIL: (id: string) => `/categories/${id}`,
     CREATE: "/categories",
-    UPDATE: (id: number) => `/categories/${id}`,
-    DELETE: (id: number) => `/categories/${id}`,
+    UPDATE: (id: string) => `/categories/${id}`,
+    DELETE: (id: string) => `/categories/${id}`,
   },
 
   // Order endpoints
@@ -47,5 +49,25 @@ export const API_ENDPOINTS = {
     UPDATE: (id: number) => `/orders/${id}`,
     DELETE: (id: number) => `/orders/${id}`,
     USER_ORDERS: "/orders/my-orders",
+  },
+
+  // Car endpoints
+  CARS: {
+    BASE: '/cars',
+    DETAIL: (id: string) => `/cars/${id}`,
+    BY_CATEGORY: (categoryId: string) => `/cars/category/${categoryId}`,
+    CREATE: '/cars',
+    UPDATE: (id: string) => `/cars/${id}`,
+    DELETE: (id: string) => `/cars/${id}`,
+    NEWEST: '/cars/newest',
+  },
+
+  // Brand endpoints
+  BRANDS: {
+    BASE: "/brands",
+    DETAIL: (id: string) => `/brands/${id}`,
+    CREATE: "/brands",
+    UPDATE: (id: string) => `/brands/${id}`,
+    DELETE: (id: string) => `/brands/${id}`,
   },
 } as const;

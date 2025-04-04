@@ -44,12 +44,33 @@ export const authService = {
 
   register: async (data: RegisterRequest): Promise<AuthResponse> => {
     const response = await axiosInstance.post<AuthResponse>(API_ENDPOINTS.AUTH.REGISTER, data);
-    const { access_token } = response.data.data;
-    const user = response.data.data.user;
-    
-    setUserAuthenticated(access_token, user);
-    
     return response.data;
+  },
+
+  verifyEmail: async (email: string, token: string): Promise<AuthApiResponse<null>> => {
+    try {
+      const response = await axiosInstance.post<AuthApiResponse<null>>(
+        API_ENDPOINTS.AUTH.VERIFY_EMAIL(token),
+        { email }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Auth Service - Email verification error:", error);
+      throw error;
+    }
+  },
+
+  resendVerification: async (email: string): Promise<AuthApiResponse<null>> => {
+    try {
+      const response = await axiosInstance.post<AuthApiResponse<null>>(
+        API_ENDPOINTS.AUTH.RESEND_VERIFICATION,
+        { email }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Auth Service - Resend verification error:", error);
+      throw error;
+    }
   },
 
   logout: async (): Promise<AuthApiResponse<null>> => {
