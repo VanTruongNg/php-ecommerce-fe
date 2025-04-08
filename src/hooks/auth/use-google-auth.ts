@@ -12,7 +12,6 @@ export const useGoogleAuth = () => {
       try {
         // Lấy URL từ backend với redirect_uri đã được thêm vào
         const url = await authService.getGoogleAuthUrl();
-        console.log("Redirecting to Google Auth URL:", url);
         
         if (!url) {
           throw new Error("Không nhận được URL chuyển hướng Google");
@@ -26,10 +25,13 @@ export const useGoogleAuth = () => {
       }
     },
     onError: (error) => {
-      console.error("Lỗi lấy URL Google Auth:", error);
       setIsRedirecting(false);
     }
   });
+
+  const handleGoogleLogin = async () => {
+    // ... existing code ...
+  };
 
   return {
     getGoogleAuthUrl,

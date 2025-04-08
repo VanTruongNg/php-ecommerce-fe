@@ -8,13 +8,19 @@ import { useState } from "react";
 import { VerifyEmailModal } from "@/components/auth/verify-email-modal";
 
 export default function RegisterPage() {
-  const { mutate: register, isPending, showVerifyModal, setShowVerifyModal, registeredEmail } = useRegister();
+  const {
+    mutate: register,
+    isPending,
+    showVerifyModal,
+    setShowVerifyModal,
+    registeredEmail,
+  } = useRegister();
   const { verify, resend, isVerifying, isResending, error } = useVerifyEmail();
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",
     password: "",
-    password_confirmation: ""
+    password_confirmation: "",
   });
 
   const handleRegister = (e: React.FormEvent) => {
@@ -24,15 +30,14 @@ export default function RegisterPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [id === 'name' ? 'full_name' : id]: value
+      [id === "name" ? "full_name" : id]: value,
     }));
   };
 
-  const handleGoogleRegister = () => {
-    // TODO: Implement Google register
-    console.log("Google register");
+  const handleGoogleRegister = async () => {
+    // ... existing code ...
   };
 
   return (
@@ -57,91 +62,106 @@ export default function RegisterPage() {
           </p>
         </motion.div>
       </div>
-      
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
       >
-        <form
-          onSubmit={handleRegister}
-          className="space-y-4"
-        >
-        <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Họ tên
-          </label>
-          <input
-            type="text"
-            id="name"
-            value={formData.full_name}
-            onChange={handleChange}
-            className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-md text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:ring-2 focus:ring-primary/20 transition-all"
-            placeholder="Nguyễn Văn A"
-          />
-        </div>
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Email
-          </label>
-          <input
-            type="email"
-            id="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-md text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:ring-2 focus:ring-primary/20 transition-all"
-            placeholder="name@example.com"
-          />
-        </div>
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Mật khẩu
-          </label>
-          <input
-            type="password"
-            id="password"
-            value={formData.password}
-            onChange={handleChange}
-            className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-md text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:ring-2 focus:ring-primary/20 transition-all"
-            placeholder="••••••••"
-          />
-        </div>
-        <div>
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Xác nhận mật khẩu
-          </label>
-          <input
-            type="password"
-            id="password_confirmation"
-            value={formData.password_confirmation}
-            onChange={handleChange}
-            className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-md text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:ring-2 focus:ring-primary/20 transition-all"
-            placeholder="••••••••"
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <input 
-            type="checkbox" 
-            id="terms" 
-            className="rounded border-gray-300 text-primary focus:ring-primary"
-          />
-          <label htmlFor="terms" className="text-sm text-gray-700 dark:text-gray-300">
-            Tôi đồng ý với <Link href="#" className="text-primary hover:underline">điều khoản</Link> và{' '}
-            <Link href="#" className="text-primary hover:underline">chính sách bảo mật</Link>
-          </label>
-        </div>
-        <motion.div
-          whileHover={{ scale: 1.01 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <button
-            type="submit"
-            disabled={isPending}
-            className="w-full bg-gradient-to-r from-primary to-primary/80 text-white rounded-md py-2.5 font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isPending ? "Đang đăng ký..." : "Đăng ký"}
-          </button>
-        </motion.div>
+        <form onSubmit={handleRegister} className="space-y-4">
+          <div>
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
+              Họ tên
+            </label>
+            <input
+              type="text"
+              id="name"
+              value={formData.full_name}
+              onChange={handleChange}
+              className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-md text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:ring-2 focus:ring-primary/20 transition-all"
+              placeholder="Nguyễn Văn A"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-md text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:ring-2 focus:ring-primary/20 transition-all"
+              placeholder="name@example.com"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
+              Mật khẩu
+            </label>
+            <input
+              type="password"
+              id="password"
+              value={formData.password}
+              onChange={handleChange}
+              className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-md text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:ring-2 focus:ring-primary/20 transition-all"
+              placeholder="••••••••"
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="confirmPassword"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
+              Xác nhận mật khẩu
+            </label>
+            <input
+              type="password"
+              id="password_confirmation"
+              value={formData.password_confirmation}
+              onChange={handleChange}
+              className="w-full px-3 py-2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 rounded-md text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:ring-2 focus:ring-primary/20 transition-all"
+              placeholder="••••••••"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="terms"
+              className="rounded border-gray-300 text-primary focus:ring-primary"
+            />
+            <label
+              htmlFor="terms"
+              className="text-sm text-gray-700 dark:text-gray-300"
+            >
+              Tôi đồng ý với{" "}
+              <Link href="#" className="text-primary hover:underline">
+                điều khoản
+              </Link>{" "}
+              và{" "}
+              <Link href="#" className="text-primary hover:underline">
+                chính sách bảo mật
+              </Link>
+            </label>
+          </div>
+          <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}>
+            <button
+              type="submit"
+              disabled={isPending}
+              className="w-full bg-gradient-to-r from-primary to-primary/80 text-white rounded-md py-2.5 font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isPending ? "Đang đăng ký..." : "Đăng ký"}
+            </button>
+          </motion.div>
         </form>
       </motion.div>
 
@@ -150,7 +170,9 @@ export default function RegisterPage() {
           <div className="w-full border-t border-gray-300 dark:border-gray-700"></div>
         </div>
         <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-white dark:bg-gray-900 text-gray-500">Hoặc đăng ký bằng</span>
+          <span className="px-2 bg-white dark:bg-gray-900 text-gray-500">
+            Hoặc đăng ký bằng
+          </span>
         </div>
       </div>
 

@@ -5,6 +5,8 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { PropsWithChildren, useState } from "react";
 import { ThemeProvider } from "./theme-provider";
 import { Toaster } from "sonner";
+import AuthCheckProvider from "./auth-check-provider";
+import { CartProvider } from "./cart-provider";
 
 export default function RootProvider({ children }: PropsWithChildren) {
   const [queryClient] = useState(
@@ -25,9 +27,13 @@ export default function RootProvider({ children }: PropsWithChildren) {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light" storageKey="app-theme">
-        {children}
-        <Toaster position="top-right" richColors />
-        <ReactQueryDevtools initialIsOpen={false} />
+        <AuthCheckProvider>
+          <CartProvider>
+            {children}
+            <Toaster position="top-right" richColors />
+            <ReactQueryDevtools initialIsOpen={false} />
+          </CartProvider>
+        </AuthCheckProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

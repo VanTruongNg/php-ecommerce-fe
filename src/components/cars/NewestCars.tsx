@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { useNewestCars } from "@/hooks/queries/useNewestCars";
 import { useCarStore } from "@/store/useCarStore";
 import {
@@ -15,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
 
 const formatPrice = (price: string) => {
   return new Intl.NumberFormat("vi-VN", {
@@ -47,8 +45,16 @@ const FuelTypeBadge = ({ type }: { type: string }) => {
 };
 
 export const NewestCars = () => {
-  const { data, isLoading } = useNewestCars();
-  const { setSelectedCar } = useCarStore();
+  const { data, isLoading, error } = useNewestCars();
+  const { newestCars, setSelectedCar } = useCarStore();
+
+  // Debug logs
+  console.log("NewestCars Component State:", {
+    isLoading,
+    error,
+    data,
+    newestCarsFromStore: newestCars,
+  });
 
   if (isLoading) {
     return (
@@ -74,17 +80,31 @@ export const NewestCars = () => {
     );
   }
 
-  if (!data?.data?.cars || data.data.cars.length === 0) {
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-destructive">Có lỗi xảy ra khi tải dữ liệu</p>
+        <p className="text-muted-foreground text-sm mt-2">{error.message}</p>
+      </div>
+    );
+  }
+
+  if (!newestCars || newestCars.length === 0) {
     return (
       <div className="text-center py-8">
         <p className="text-muted-foreground">Không có xe mới nào</p>
+        {data && (
+          <pre className="text-xs mt-4 p-4 bg-muted rounded-lg overflow-auto">
+            {JSON.stringify(data, null, 2)}
+          </pre>
+        )}
       </div>
     );
   }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {data.data.cars.map((car) => (
+      {newestCars.map((car) => (
         <Card key={car.id} className="w-full group p-0">
           <div className="relative aspect-[16/9]">
             <Image
@@ -117,7 +137,7 @@ export const NewestCars = () => {
               </p>
             </div>
           </CardContent>
-          <CardFooter className="pb-4">
+          <CardFooter>
             <Button
               className="w-full"
               onClick={() => setSelectedCar(car)}

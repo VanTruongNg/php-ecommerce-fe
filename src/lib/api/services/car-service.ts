@@ -45,38 +45,12 @@ export const carService = {
   },
 
   updateCar: async (id: string, data: Partial<Car>): Promise<ApiResponse<Car>> => {
-    const response = await axiosInstance.put(API_ENDPOINTS.CARS.UPDATE(id), data);
+    const response = await axiosInstance.post(API_ENDPOINTS.CARS.UPDATE(id), data);
     return response.data;
   },
 
   deleteCar: async (id: string): Promise<ApiResponse<null>> => {
     const response = await axiosInstance.delete(API_ENDPOINTS.CARS.DELETE(id));
-    return response.data;
-  },
-
-  // Category APIs
-  getAllCategories: async (): Promise<ApiResponse<Category[]>> => {
-    const response = await axiosInstance.get(API_ENDPOINTS.CATEGORIES.BASE);
-    return response.data;
-  },
-
-  getCategoryById: async (id: string): Promise<ApiResponse<Category>> => {
-    const response = await axiosInstance.get(API_ENDPOINTS.CATEGORIES.DETAIL(id));
-    return response.data;
-  },
-
-  createCategory: async (data: Omit<Category, "id" | "created_at" | "updated_at">): Promise<ApiResponse<Category>> => {
-    const response = await axiosInstance.post(API_ENDPOINTS.CATEGORIES.CREATE, data);
-    return response.data;
-  },
-
-  updateCategory: async (id: string, data: Partial<Category>): Promise<ApiResponse<Category>> => {
-    const response = await axiosInstance.put(API_ENDPOINTS.CATEGORIES.UPDATE(id), data);
-    return response.data;
-  },
-
-  deleteCategory: async (id: string): Promise<ApiResponse<null>> => {
-    const response = await axiosInstance.delete(API_ENDPOINTS.CATEGORIES.DELETE(id));
     return response.data;
   },
 
@@ -97,7 +71,7 @@ export const carService = {
   },
 
   updateBrand: async (id: string, data: Partial<Brand>): Promise<ApiResponse<Brand>> => {
-    const response = await axiosInstance.put(API_ENDPOINTS.BRANDS.UPDATE(id), data);
+    const response = await axiosInstance.post(API_ENDPOINTS.BRANDS.UPDATE(id), data);
     return response.data;
   },
 

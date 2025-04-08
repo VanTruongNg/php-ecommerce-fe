@@ -1,23 +1,39 @@
 import { useAuthStore } from "@/store/use-auth-store";
 import { useCurrentUser } from "./use-current-user";
+import { useLogout } from "./use-logout";
 import { useMemo } from "react";
 
 export const useAuth = () => {
-  // Tách các selectors để tránh re-renders không cần thiết
+  // Lấy state từ zustand store
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const user = useAuthStore((state) => state.user);
+  const isAuthInitialized = useAuthStore((state) => state.isAuthInitialized);
   
-  // Chỉ fetch user data nếu đã authenticated nhưng chưa có user data
-  const { isLoading, error } = useCurrentUser();
+  // Lấy các hook queries
+  const { isLoading: isUserLoading, error: userError, refreshUser } = useCurrentUser();
+  const { mutate: logoutMutation, isPending: isLoggingOut } = useLogout();
   
   // Sử dụng useMemo để cache kết quả
   const authData = useMemo(() => ({
     isAuthenticated,
     user,
-    isLoading,
-    error,
+    isLoading: isUserLoading || !isAuthInitialized,
+    isAuthInitialized,
+    isLoggingOut,
+    error: userError,
     isAdmin: user?.role === "admin",
-  }), [isAuthenticated, user, isLoading, error]);
+    refreshUser,
+    logout: logoutMutation,
+  }), [
+    isAuthenticated, 
+    user, 
+    isUserLoading, 
+    isAuthInitialized,
+    isLoggingOut,
+    userError, 
+    refreshUser,
+    logoutMutation
+  ]);
   
   return authData;
 };
@@ -26,6 +42,6 @@ export const useAuth = () => {
 export type UseAuthReturn = ReturnType<typeof useAuth>;
 
 // Hook sử dụng:
-// const { isAuthenticated, user, isLoading, isAdmin } = useAuth();
+// const { isAuthenticated, user, isLoading, isAdmin, logout } = useAuth();
 // if (isLoading) return <Loading />;
 // if (!isAuthenticated) return <Navigate to="/login" />;

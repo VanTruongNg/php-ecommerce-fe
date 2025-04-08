@@ -22,7 +22,12 @@ export const useLogin = () => {
       });
       
       toast.success("Đăng nhập thành công!");
-      router.push("/admin/dashboard");
+      
+      if (response.data.user.role === "admin") {
+        router.push("/dashboard");
+      } else {
+        router.push("/");
+      }
     },
     onError: (error: AxiosError<ApiErrorResponse>) => {
       if (error.response?.status === 401 && error.response.data.message === "Email not verified") {

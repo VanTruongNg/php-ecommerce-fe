@@ -61,7 +61,7 @@ export default function GoogleCallbackPage() {
     };
 
     processAuth();
-  }, [searchParams, handleGoogleCallback, router]);
+  }, []);
 
   // Nếu đang xử lý
   if (isLoading) {

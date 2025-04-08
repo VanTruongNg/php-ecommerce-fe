@@ -43,8 +43,8 @@ export const userNavItems: NavItem[] = [
     icon: UserCircle
   },
   {
-    title: "Đơn hàng",
-    href: "/orders",
+    title: "Đơn hàng của bạn",
+    href: "/your-orders",
     icon: ShoppingBag
   },
   {

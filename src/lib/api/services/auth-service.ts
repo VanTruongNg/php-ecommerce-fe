@@ -11,6 +11,7 @@ export interface AuthApiResponse<T> {
 
 const setUserAuthenticated = (token: string, user: User) => {
   localStorage.setItem("access_token", token);
+  Cookies.set('access_token', token, { expires: 7, path: '/' });
   Cookies.set('user-role', user.role || 'user', { expires: 7, path: '/' });
 };
 
@@ -24,11 +25,8 @@ let isMakingAuthRequest = false;
 
 export const authService = {
   login: async (data: LoginRequest): Promise<AuthResponse> => {
-    console.log("Auth Service - Login request:", data);
-    
     try {
       const response = await axiosInstance.post<AuthResponse>(API_ENDPOINTS.AUTH.LOGIN, data);
-      console.log("Auth Service - Login response:", response.data);
       
       const { access_token } = response.data.data;
       const user = response.data.data.user;
@@ -37,7 +35,6 @@ export const authService = {
       
       return response.data;
     } catch (error) {
-      console.error("Auth Service - Login error:", error);
       throw error;
     }
   },
@@ -55,7 +52,6 @@ export const authService = {
       );
       return response.data;
     } catch (error) {
-      console.error("Auth Service - Email verification error:", error);
       throw error;
     }
   },
@@ -68,14 +64,12 @@ export const authService = {
       );
       return response.data;
     } catch (error) {
-      console.error("Auth Service - Resend verification error:", error);
       throw error;
     }
   },
 
   logout: async (): Promise<AuthApiResponse<null>> => {
     if (isMakingAuthRequest) {
-      console.log("Auth Service - Ignoring duplicate logout request");
       return {
         status: "success",
         message: "Already logging out",
@@ -86,15 +80,12 @@ export const authService = {
     isMakingAuthRequest = true;
     
     try {
-      console.log("Auth Service - Logout request sent");
       const response = await axiosInstance.post<AuthApiResponse<null>>(API_ENDPOINTS.AUTH.LOGOUT);
-      console.log("Auth Service - Logout response:", response.data);
       
       clearUserAuthentication();
       
       return response.data;
     } catch (error) {
-      console.error("Auth Service - Logout error:", error);
       throw error;
     } finally {
       setTimeout(() => {
@@ -105,7 +96,6 @@ export const authService = {
 
   getMe: async (): Promise<AuthApiResponse<{ user: User }>> => {
     if (isMakingAuthRequest) {
-      console.log("Auth Service - Ignoring duplicate getMe request");
       return {
         status: "success",
         message: "Already fetching user data",
@@ -116,9 +106,7 @@ export const authService = {
     isMakingAuthRequest = true;
     
     try {
-      console.log("Auth Service - GetMe request sent");
       const response = await axiosInstance.get<AuthApiResponse<{ user: User }>>(API_ENDPOINTS.AUTH.ME);
-      console.log("Auth Service - GetMe response:", response.data);
       
       if (response.data.data.user) {
         Cookies.set('user-role', response.data.data.user.role || 'user', { expires: 7, path: '/' });
@@ -126,7 +114,6 @@ export const authService = {
       
       return response.data;
     } catch (error) {
-      console.error("Auth Service - GetMe error:", error);
       throw error;
     } finally {
       setTimeout(() => {
@@ -137,9 +124,7 @@ export const authService = {
   
   validateAdmin: async (): Promise<AuthApiResponse<{ isAdmin: boolean; user?: User }>> => {
     try {
-      console.log("Auth Service - ValidateAdmin request sent");
       const response = await axiosInstance.get<AuthApiResponse<{ user: User }>>(API_ENDPOINTS.AUTH.ME);
-      console.log("Auth Service - ValidateAdmin response:", response.data);
       
       const isAdmin = response.data.data.user?.role === 'admin';
       
@@ -152,7 +137,6 @@ export const authService = {
         }
       };
     } catch (error) {
-      console.error("Auth Service - Validate Admin error:", error);
       return {
         status: "error",
         message: "Failed to validate admin rights",
@@ -161,29 +145,21 @@ export const authService = {
     }
   },
 
-  // Thêm các phương thức đăng nhập Google
   getGoogleAuthUrl: async (): Promise<string> => {
     try {
-      console.log("Auth Service - Requesting Google Auth URL");
-      // Backend trả về { url: "https://google-auth-url..." }
       const response = await axiosInstance.get<{ url: string }>(API_ENDPOINTS.AUTH.GOOGLE_LOGIN);
-      console.log("Auth Service - Google Auth URL received:", response.data);
       
-      // Kiểm tra response có đúng định dạng không
       if (!response.data || !response.data.url) {
-        console.error("Invalid Google Auth URL response:", response.data);
         throw new Error("Không nhận được URL đăng nhập Google hợp lệ");
       }
       
       return response.data.url;
     } catch (error) {
-      console.error("Auth Service - Google Auth URL error:", error);
       throw error;
     }
   },
 
   handleGoogleCallback: async (): Promise<AuthApiResponse<{user: null, access_token: null}>> => {
-    console.log("Auth Service - This method is deprecated");
     return {
       status: "success", 
       message: "Please use the success route instead",

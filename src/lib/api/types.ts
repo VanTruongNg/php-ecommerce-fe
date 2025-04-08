@@ -1,11 +1,20 @@
 // Common types
-export interface ApiResponse<T> {
+export interface ApiResponse<T = unknown, D = null> {
   status: 'success' | 'error';
+  message: T;
+  data: D;
+}
+
+// Payment types
+export type PaymentStatus = 'PAID' | 'PENDING' | 'CANCELLED';
+
+export interface PaymentStatusResponse {
+  status: PaymentStatus;
   message: string;
-  data: {
-    cars?: T[];
-    [key: string]: any;
-  };
+}
+
+export interface PaymentLinkResponse {
+  checkoutUrl: string;
 }
 
 // Auth types
@@ -69,6 +78,8 @@ export interface Category {
   updated_at: string;
 }
 
+export type OrderStatus = 'pending' | 'completed' | 'cancelled';
+
 export interface Car {
   id: string;
   model: string;
@@ -92,3 +103,77 @@ export interface Brand {
   created_at: string;
   updated_at: string;
 }
+
+export interface OrderDetail {
+  id: string;
+  order_id: string;
+  car_id: string;
+  quantity: number;
+  price: string;
+  subtotal_price: string;
+  created_at: string;
+  updated_at: string;
+  car: Car;
+}
+
+export interface Payment {
+  id: string;
+  order_id: string;
+  amount: string;
+  status: 'pending' | 'completed' | 'failed';
+  paid_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Order {
+  id: string;
+  user_id: string;
+  total_price: string;
+  status: OrderStatus;
+  order_time: string;
+  created_at: string;
+  updated_at: string;
+  order_details: OrderDetail[];
+  payment: Payment;
+}
+
+export interface CreateOrderRequest {
+  type: 'cart';
+}
+
+export interface CreateOrderResponse {
+  status: 'success' | 'error';
+  message: string;
+  data: {
+    order: Order;
+  };
+}
+
+// Admin specific response types
+export type AdminBrandsResponse = ApiResponse<{
+  brands: Brand[];
+  total: number;
+}>;
+
+export type AdminCarsResponse = ApiResponse<{
+  cars: Car[];
+  total: number;
+}>;
+
+export type AdminOrdersResponse = ApiResponse<{
+  orders: Order[];
+  total: number;
+}>;
+
+export type AdminSingleBrandResponse = ApiResponse<{
+  brand: Brand;
+}>;
+
+export type AdminSingleCarResponse = ApiResponse<{
+  car: Car;
+}>;
+
+export type AdminSingleOrderResponse = ApiResponse<{
+  order: Order;
+}>;

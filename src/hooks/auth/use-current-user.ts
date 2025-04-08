@@ -1,18 +1,18 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { authService } from "@/lib/api/services";
 import { useAuthStore } from "@/store/use-auth-store";
-import { useMemo, useRef } from "react";
+import { useMemo } from "react";
 
 export const USE_CURRENT_USER_QUERY_KEY = ["current-user"] as const;
 
-export const useCurrentUser = () => {
+export const useCurrentUser = (options?: { skipCache?: boolean }) => {
+  const queryClient = useQueryClient();
   // Lấy trực tiếp các hàm và state từ store
   const setUser = useAuthStore((state) => state.setUser);
+  const logout = useAuthStore((state) => state.logout);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const user = useAuthStore((state) => state.user);
-  
-  // Để tránh gọi API nhiều lần khi dùng StrictMode
-  const hasFetchedRef = useRef(false);
+  const isAuthInitialized = useAuthStore((state) => state.isAuthInitialized);
   
   // Kiểm tra token từ localStorage một lần
   const hasToken = useMemo(() => {
@@ -22,35 +22,53 @@ export const useCurrentUser = () => {
 
   // Memoize kết quả của điều kiện enabled để tránh tính toán lại
   const isQueryEnabled = useMemo(() => {
-    // Chỉ fetch nếu:
-    // 1. Có token
-    // 2. Chưa authenticated hoặc chưa có user
-    // 3. Chưa từng fetch thành công (trong StrictMode)
-    return hasToken && !user && !isAuthenticated && !hasFetchedRef.current;
-  }, [hasToken, user, isAuthenticated]);
+    // Chỉ fetch khi cần bỏ qua cache hoặc chưa có user
+    return options?.skipCache || (hasToken && !user && isAuthInitialized);
+  }, [hasToken, user, isAuthInitialized, options?.skipCache]);
 
   const query = useQuery({
     queryKey: USE_CURRENT_USER_QUERY_KEY,
     queryFn: async () => {
-      console.log("Fetching current user...");
-      const response = await authService.getMe();
-      return response.data;
+      try {
+        const response = await authService.getMe();
+        return response.data;
+      } catch (error) {
+        // Nếu có lỗi và đã authenticated, thực hiện logout
+        if (isAuthenticated) {
+          logout();
+        }
+        throw error;
+      }
     },
     refetchOnWindowFocus: false,
     staleTime: 5 * 60 * 1000, // 5 phút
-    // Chỉ fetch dữ liệu nếu có token và chưa có user data
     enabled: isQueryEnabled,
     select: (data) => {
       if (data?.user) {
         setUser(data.user, localStorage.getItem("access_token") || "");
-        // Đánh dấu đã fetch thành công để tránh fetch lại trong StrictMode
-        hasFetchedRef.current = true;
+        return data.user;
       }
-      return data?.user;
+      return null;
     },
   });
 
-  return query;
+  // Hàm tiện ích để refresh người dùng hiện tại
+  const refreshUser = async () => {
+    try {
+      await queryClient.invalidateQueries({ queryKey: USE_CURRENT_USER_QUERY_KEY });
+      return await query.refetch();
+    } catch (error) {
+      return null;
+    }
+  };
+
+  return {
+    ...query,
+    user,
+    isAuthenticated,
+    isAuthInitialized,
+    refreshUser,
+  };
 };
 
 export type UseCurrentUserReturn = ReturnType<typeof useCurrentUser>;

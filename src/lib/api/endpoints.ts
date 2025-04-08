@@ -6,12 +6,13 @@ export const API_ENDPOINTS = {
     LOGOUT: "/auth/logout",
     REFRESH: "/auth/refresh",
     ME: "/auth/user",
-    VALIDATE_ADMIN: "/auth/validate-admin",
     GOOGLE_LOGIN: "/auth/google",
     GOOGLE_CALLBACK: "/auth/google/callback",
     REDIRECT_URI: typeof window !== 'undefined' ? `${window.location.origin}/auth/google/callback` : '',
     VERIFY_EMAIL: (token: string) => `/auth/verify-email/${token}`,
-    RESEND_VERIFICATION: "/auth/resend-verification",
+    RESEND_VERIFICATION: "/auth/resend-verification-email",
+    SEND_RESET_PASSWORD: "/auth/send-reset-password-email",
+    RESET_PASSWORD: (token: string) => `/auth/reset-password/${token}`,
   },
 
   // User endpoints
@@ -42,20 +43,18 @@ export const API_ENDPOINTS = {
   },
 
   // Order endpoints
-  ORDERS: {
-    BASE: "/orders",
-    DETAIL: (id: number) => `/orders/${id}`,
-    CREATE: "/orders",
-    UPDATE: (id: number) => `/orders/${id}`,
-    DELETE: (id: number) => `/orders/${id}`,
-    USER_ORDERS: "/orders/my-orders",
+  ORDER: {
+    ME: "/order/me",
+    DETAIL: (id: string) => `/order/${id}`,
+    CREATE: "/order/create",
+    CANCEL: (id: string) => `/order/cancel/${id}`,
+    ALL: "/order",
   },
 
   // Car endpoints
   CARS: {
     BASE: '/cars',
     DETAIL: (id: string) => `/cars/${id}`,
-    BY_CATEGORY: (categoryId: string) => `/cars/category/${categoryId}`,
     CREATE: '/cars',
     UPDATE: (id: string) => `/cars/${id}`,
     DELETE: (id: string) => `/cars/${id}`,
@@ -69,5 +68,24 @@ export const API_ENDPOINTS = {
     CREATE: "/brands",
     UPDATE: (id: string) => `/brands/${id}`,
     DELETE: (id: string) => `/brands/${id}`,
+  },
+
+  // Cart endpoints
+  CART: {
+    ME: "/cart/me",
+    ADD: "/cart/add",
+    REMOVE: "/cart/remove",
+    CLEAR: "/cart/clear",
+    UPDATE: "/cart/update",
+  },
+
+  // Upload endpoints
+  UPLOAD: {
+    FILE: "/upload/file",
+  },
+
+  // Payment endpoints
+  PAYMENT: {
+    CREATE_URL: (orderId: string) => `/payment/${orderId}/create-url`,
   },
 } as const;

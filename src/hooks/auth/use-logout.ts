@@ -5,6 +5,25 @@ import { useRouter } from "next/navigation";
 import { USE_CURRENT_USER_QUERY_KEY } from "./use-current-user";
 import { USE_ADMIN_QUERY_KEY } from "./use-admin";
 import { useRef } from "react";
+import Cookies from 'js-cookie';
+
+// Hàm xóa tất cả dữ liệu xác thực
+const clearAllAuthData = (queryClient: ReturnType<typeof useQueryClient>) => {
+  // Xóa queries từ react-query cache
+  queryClient.removeQueries({ queryKey: USE_CURRENT_USER_QUERY_KEY });
+  queryClient.removeQueries({ queryKey: USE_ADMIN_QUERY_KEY });
+  
+  // Xóa access token từ localStorage
+  localStorage.removeItem("access_token");
+  
+  // Xóa cookies
+  Cookies.remove('refresh_token', { path: '/' });
+  Cookies.remove('user-role', { path: '/' });
+  
+  // Xóa state từ zustand
+  const logout = useAuthStore.getState().logout;
+  logout();
+};
 
 export const useLogout = () => {
   const router = useRouter();
@@ -12,31 +31,28 @@ export const useLogout = () => {
   const logout = useAuthStore((state) => state.logout);
   const isLoggingOutRef = useRef(false);
 
-  return useMutation({
-    mutationFn: async () => {
-      if (isLoggingOutRef.current) {
-        console.log("Logout đang được xử lý, bỏ qua request trùng lặp");
-        return Promise.resolve({ status: "success", message: "Already logging out", data: null });
-      }
-      
-      isLoggingOutRef.current = true;
-      
-      try {
-        return await authService.logout();
-      } catch (error) {
-        isLoggingOutRef.current = false;
-        throw error;
-      }
-    },
-    onSuccess: () => {
-      queryClient.removeQueries({ queryKey: USE_CURRENT_USER_QUERY_KEY });
-      queryClient.removeQueries({ queryKey: USE_ADMIN_QUERY_KEY });
-      
-      logout();
-      
+  const handleLogout = async () => {
+    if (isLoggingOutRef.current) {
+      return Promise.resolve({ status: "success", message: "Already logging out", data: null });
+    }
+    
+    isLoggingOutRef.current = true;
+    
+    try {
+      return await authService.logout();
+    } catch (error) {
+      clearAllAuthData(queryClient);
       isLoggingOutRef.current = false;
-      
-      router.push("/");
+      return { status: "success", message: "Logged out (client-side only)", data: null };
+    }
+  };
+
+  return useMutation({
+    mutationFn: handleLogout,
+    onSuccess: () => {
+      clearAllAuthData(queryClient);
+      isLoggingOutRef.current = false;
+      router.push("/auth/login");
     },
     onError: () => {
       isLoggingOutRef.current = false;

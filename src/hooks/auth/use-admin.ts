@@ -29,7 +29,6 @@ export const useAdmin = (redirectOnFailure = true) => {
   const query = useQuery({
     queryKey: USE_ADMIN_QUERY_KEY,
     queryFn: async () => {
-      console.log("Validating admin status...");
       const response = await authService.validateAdmin();
       return response.data;
     },

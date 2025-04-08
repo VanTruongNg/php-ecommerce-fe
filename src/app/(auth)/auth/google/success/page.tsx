@@ -22,8 +22,6 @@ export default function GoogleSuccessPage() {
   // Xử lý cookies và local storage
   useEffect(() => {
     if (refreshToken) {
-      console.log("Setting refresh_token cookie");
-      // Set cookie với cấu hình giống backend
       Cookies.set("refresh_token", refreshToken, {
         expires: 7, // 7 ngày (60 * 24 * 7 phút)
         path: "/",

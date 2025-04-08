@@ -1,7 +1,6 @@
 "use client";
 
 import { useAllCars } from "@/hooks/queries/useAllCars";
-import { useCarStore } from "@/store/useCarStore";
 import {
   Card,
   CardContent,
@@ -34,7 +33,10 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Car } from "@/lib/api/types";
-import { Heart, ShoppingCart, CreditCard } from "lucide-react";
+import { Heart, ShoppingCart, CreditCard, Eye } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { useCart } from "@/hooks/queries/cart";
 
 const formatPrice = (price: string) => {
   return new Intl.NumberFormat("vi-VN", {
@@ -74,9 +76,10 @@ interface Filters {
 }
 
 export const AllCars = () => {
+  const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const { data, isLoading } = useAllCars({ page: currentPage });
-  const { setSelectedCar } = useCarStore();
+  const { addToCart, isPending } = useCart();
   const [filters, setFilters] = useState<Filters>({
     search: "",
     fuelType: "all",
@@ -84,6 +87,19 @@ export const AllCars = () => {
     availability: "all",
     year: "all",
   });
+
+  const handleAddToCart = async (car: Car) => {
+    try {
+      await addToCart({ car_id: car.id, quantity: 1 });
+      toast.success("Thêm vào giỏ hàng thành công", {
+        description: `Đã thêm ${car.model} vào giỏ hàng của bạn`,
+      });
+    } catch {
+      toast.error("Không thể thêm vào giỏ hàng", {
+        description: "Vui lòng đăng nhập và thử lại sau.",
+      });
+    }
+  };
 
   const filteredCars = data?.data?.cars?.filter((car: Car) => {
     if (
@@ -300,9 +316,10 @@ export const AllCars = () => {
                     <div className="grid grid-cols-3 gap-2 w-full">
                       <Button
                         className="w-full col-span-3"
-                        onClick={() => setSelectedCar(car)}
+                        onClick={() => router.push(`/cars/${car.id}`)}
                         variant="outline"
                       >
+                        <Eye className="w-4 h-4 mr-2" />
                         Xem chi tiết
                       </Button>
                     </div>
@@ -314,7 +331,10 @@ export const AllCars = () => {
                             ? "default"
                             : "secondary"
                         }
-                        disabled={car.availability === "out_of_stock"}
+                        disabled={
+                          car.availability === "out_of_stock" || isPending
+                        }
+                        onClick={() => handleAddToCart(car)}
                       >
                         {car.availability === "in_stock" ? (
                           <div className="flex items-center gap-2">
@@ -331,6 +351,10 @@ export const AllCars = () => {
                         className="w-full"
                         variant="destructive"
                         disabled={car.availability !== "in_stock"}
+                        onClick={() => {
+                          handleAddToCart(car);
+                          router.push("/checkout");
+                        }}
                       >
                         <div className="flex items-center gap-2">
                           <CreditCard className="w-4 h-4" />
